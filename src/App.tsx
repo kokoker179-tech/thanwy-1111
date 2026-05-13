@@ -178,54 +178,74 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
       </main>
 
       {/* Booking Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <form onSubmit={submitBooking} className="bg-[#111] p-8 rounded-3xl border border-white/10 w-full max-w-md">
-            <h2 className="text-2xl font-bold mb-6">تسجيل الحجز</h2>
-            {errorMessage && <p className="mb-4 text-red-500 font-bold text-center">{errorMessage}</p>}
-            <div className="space-y-4">
-              <input type="text" placeholder="الاسم" required className="w-full p-4 rounded-xl bg-white/5 border border-white/10" value={bookingFormData.name} onChange={(e) => setBookingFormData({...bookingFormData, name: e.target.value})} />
-              <select className="w-full p-4 rounded-xl bg-white/5 border border-white/10" value={bookingFormData.gender} onChange={(e) => setBookingFormData({...bookingFormData, gender: e.target.value})}>
-                <option value="بنين">بنين</option>
-                <option value="بنات">بنات</option>
-              </select>
-              <select className="w-full p-4 rounded-xl bg-white/5 border border-white/10" value={bookingFormData.year} onChange={(e) => setBookingFormData({...bookingFormData, year: e.target.value})}>
-                <option value="أولي">أولي ثانوي</option>
-                <option value="ثانية">ثانية ثانوي</option>
-                <option value="ثالثة">ثالثة ثانوي</option>
-              </select>
-              <input type="tel" placeholder="رقم الهاتف" required className="w-full p-4 rounded-xl bg-white/5 border border-white/10" value={bookingFormData.phone} onChange={(e) => setBookingFormData({...bookingFormData, phone: e.target.value})} />
-            </div>
-            <div className="flex gap-4 mt-8">
-              <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 p-4 rounded-xl bg-white/5 hover:bg-white/10">إلغاء</button>
-              <button type="submit" disabled={isSubmitting} className="flex-1 p-4 rounded-xl bg-pink-500 font-bold disabled:opacity-50">
-                {isSubmitting ? 'جاري التأكيد...' : 'تأكيد الحجز'}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+      <AnimatePresence>
+        {isModalOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          >
+            <motion.form 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              onSubmit={submitBooking} 
+              className="bg-[#111] p-8 rounded-3xl border border-white/10 w-full max-w-md shadow-2xl"
+            >
+              <h2 className="text-3xl font-black mb-6 text-white tracking-tight">تسجيل الحجز</h2>
+              {errorMessage && <p className="mb-4 text-red-500 font-medium text-center bg-red-500/10 p-3 rounded-xl">{errorMessage}</p>}
+              <div className="space-y-4">
+                <motion.input whileFocus={{ scale: 1.02 }} type="text" placeholder="الاسم" required className="w-full p-4 rounded-xl bg-white/5 border border-white/10 focus:border-pink-500 outline-none transition-all" value={bookingFormData.name} onChange={(e) => setBookingFormData({...bookingFormData, name: e.target.value})} />
+                <motion.select whileFocus={{ scale: 1.02 }} className="w-full p-4 rounded-xl bg-white/5 border border-white/10 focus:border-pink-500 outline-none transition-all" value={bookingFormData.gender} onChange={(e) => setBookingFormData({...bookingFormData, gender: e.target.value})}>
+                  <option value="بنين">بنين</option>
+                  <option value="بنات">بنات</option>
+                </motion.select>
+                <motion.select whileFocus={{ scale: 1.02 }} className="w-full p-4 rounded-xl bg-white/5 border border-white/10 focus:border-pink-500 outline-none transition-all" value={bookingFormData.year} onChange={(e) => setBookingFormData({...bookingFormData, year: e.target.value})}>
+                  <option value="أولي">أولي ثانوي</option>
+                  <option value="ثانية">ثانية ثانوي</option>
+                  <option value="ثالثة">ثالثة ثانوي</option>
+                </motion.select>
+                <motion.input whileFocus={{ scale: 1.02 }} type="tel" placeholder="رقم الهاتف" required className="w-full p-4 rounded-xl bg-white/5 border border-white/10 focus:border-pink-500 outline-none transition-all" value={bookingFormData.phone} onChange={(e) => setBookingFormData({...bookingFormData, phone: e.target.value})} />
+              </div>
+              <div className="flex gap-4 mt-8">
+                <motion.button whileTap={{ scale: 0.95 }} type="button" onClick={() => setIsModalOpen(false)} className="flex-1 p-4 rounded-xl font-bold bg-white/5 hover:bg-white/10 transition-colors">إلغاء</motion.button>
+                <motion.button whileTap={{ scale: 0.95 }} type="submit" disabled={isSubmitting} className="flex-1 p-4 rounded-xl font-black bg-pink-600 hover:bg-pink-500 transition-all disabled:opacity-50">
+                  {isSubmitting ? 'جاري التأكيد...' : 'تأكيد الحجز'}
+                </motion.button>
+              </div>
+            </motion.form>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Success Modal */}
       <AnimatePresence>
         {isSuccessModalOpen && (
           <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
           >
-            <div className="bg-[#111] p-10 rounded-3xl border border-pink-500/50 w-full max-w-sm text-center">
-              <CheckCircle className="w-20 h-20 text-green-500 mx-auto mb-6" />
-              <h2 className="text-3xl font-black mb-4">تم الحجز!</h2>
-              <p className="text-gray-400 mb-8">نشوفك في الحفلة!</p>
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-[#111] p-10 rounded-3xl border border-pink-500/30 w-full max-w-sm text-center shadow-2xl shadow-pink-500/10"
+            >
+              <div className="w-24 h-24 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-8 animate-pulse">
+                <CheckCircle className="w-12 h-12 text-green-500" />
+              </div>
+              <h2 className="text-4xl font-black mb-4 tracking-tighter">تم الحجز!</h2>
+              <p className="text-gray-400 text-lg mb-10">نشوفك في الحفلة!</p>
               <button 
                 onClick={() => setIsSuccessModalOpen(false)}
-                className="w-full p-4 rounded-xl bg-pink-500 font-bold"
+                className="w-full p-4 rounded-2xl bg-gradient-to-r from-pink-600 to-purple-600 font-bold hover:scale-[1.02] transition-transform"
               >
                 إغلاق
               </button>
-            </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
