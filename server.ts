@@ -23,8 +23,8 @@ async function startServer() {
       const { message } = req.body;
       console.log("Received message:", message);
     
-      if (!message) {
-        return res.status(400).json({ error: "Message is required" });
+      if (!message || typeof message !== 'string') {
+        return res.status(400).json({ error: "Message is required and must be a string", body: req.body });
       }
     
       const msg = message.toLowerCase();
