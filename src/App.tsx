@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { AdminDashboard } from './components/AdminDashboard';
 import { collection, addDoc, Timestamp, query, where, getDocs, doc, getDocFromServer, runTransaction } from 'firebase/firestore';
 import { getDb } from './lib/firebase';
 import { PartyPopper, CheckCircle } from 'lucide-react';
@@ -12,6 +13,18 @@ import SmartHelperChat from './components/SmartHelperChat';
 import ContactPage from './components/ContactPage';
 
 export default function App() {
+  const [currentPath, setCurrentPath] = useState(window.location.hash || '#/');
+
+  useEffect(() => {
+    const handleHashChange = () => setCurrentPath(window.location.hash || '#/');
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  if (currentPath === '#/123456') {
+    return <AdminDashboard />;
+  }
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
@@ -188,7 +201,7 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
               onSubmit={submitBooking} 
-              className="bg-[#111] p-8 rounded-3xl border border-white/10 w-full max-w-md shadow-2xl"
+              className="bg-gradient-to-b from-[#111] to-[#160a20] p-8 rounded-3xl border border-white/10 w-full max-w-md shadow-2xl shadow-purple-900/20"
             >
               <h2 className="text-3xl font-black mb-6 text-white tracking-tight">تسجيل الحجز</h2>
               {errorMessage && <p className="mb-4 text-red-500 font-medium text-center bg-red-500/10 p-3 rounded-xl">{errorMessage}</p>}
@@ -229,7 +242,7 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-[#111] p-10 rounded-3xl border border-pink-500/30 w-full max-w-sm text-center shadow-2xl shadow-pink-500/10"
+              className="bg-gradient-to-tr from-[#111] to-[#1a1020] p-10 rounded-3xl border border-pink-500/30 w-full max-w-sm text-center shadow-2xl shadow-pink-500/20"
             >
               <div className="w-24 h-24 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-8 animate-pulse">
                 <CheckCircle className="w-12 h-12 text-green-500" />
