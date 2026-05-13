@@ -18,43 +18,32 @@ export default function SmartHelperChat() {
     setInput('');
     setIsLoading(true);
 
-    try {
-      console.log('Sending message:', input);
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: JSON.stringify({ message: input }),
-      });
-      
-      console.log('Response status:', response.status);
-      const text = await response.text();
-      console.log('Response text:', text);
-      
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (e) {
-        throw new Error(`Invalid JSON response: ${text}`);
-      }
+    // Simulated delay to mimic real chat
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-      if (!response.ok) {
-        throw new Error(`Server error (${response.status}): ${data.error || text}`);
-      }
-      
-      setMessages((prev) => [...prev, { role: 'ai', text: data.text || 'عذراً، حدث خطأ ما.' }]);
-      
-      // Play sound
-      const audio = new Audio('/notification.mp3');
-      audio.play().catch(e => console.error("Sound play failed:", e));
-    } catch (error) {
-      console.error("Chat error object:", error);
-      setMessages((prev) => [...prev, { role: 'ai', text: `خطأ تقني: ${error instanceof Error ? error.message : String(error)}` }]);
-    } finally {
-      setIsLoading(false);
-    }
+    const msg = input.toLowerCase();
+    const rules = [
+      { pattern: /مطور|مصمم|مين|مبرمج|صاحب|سوى|عمل/i, response: "الموقع تم تطويره بواسطة المبرمج الشاطر والمحترف كيرلس صفوت (Kerolos Sfwat)." },
+      { pattern: /ميعاد|وقت|تاريخ|متى|امتى/i, response: "حتى الآن، التاريخ والوقت لم يحدد بعد. سنقوم بالإعلان عنه فور تحديده، تابع الموقع للحصول على آخر التحديثات!" },
+      { pattern: /مكان|فين|موقع|عنوان/i, response: "موقع الحفلة لا يزال قيد التحديد. سنعلن عنه قريباً. هل هناك شيء آخر تود الاستفسار عنه؟" },
+      { pattern: /وصف|عن|حفلة|تفاصيل/i, response: "الحفلة ستكون تجمعاً مميزاً. لا يوجد وصف تفصيلي حتى الآن، لكننا نعدك بتجربة رائعة." },
+      { pattern: /سلام|هاي|مرحبا|اهلا/i, response: "أهلاً بك في كنيسة الملاك روفائيل! أنا مساعدك الذكي لكل ما يخص الحفلة القادمة. كيف يمكنني مساعدتك؟" },
+      { pattern: /كود|رسالة|تحقق|تفعيل/i, response: "مشكلة كود التحقق غالباً ما تكون بسبب التأخير في الشبكة أو الرقم غير المسجل على واتساب. هل جربت الانتظار لدقيقة وإعادة الطلب؟" },
+      { pattern: /طباعة|ورقة|تذكرة|إثبات|تأكيد/i, response: "لمشكلة التذكرة: تأكد من إتمام الحجز بنجاح، حاول تحديث الصفحة. إذا استمرت، أرسل رقم حجزك للدعم الفني واتساب: 01554353231." },
+      { pattern: /بيانات|حفظ|تسجيل|خطأ/i, response: "عند وجود خطأ في البيانات، تأكد من ملء الحقول المطلوبة بدقة (مثل تنسيق الهاتف). هل تظهر لك رسالة خطأ محددة؟" },
+      { pattern: /مشكلة|مشكله|خطأ|فنية|دعم|مساعدة|عطل/i, response: "يقلقني أنك تواجه مشكلة. لتشخيص الأمر، هل المشكلة في (الكود) أو (حفظ البيانات) أو (التذكرة)؟ بمجرد تحديدك للمشكلة، سأعطيك الخطوات الدقيقة للحل." }
+    ];
+
+    const matchedRule = rules.find(rule => rule.pattern.test(msg));
+    const responseText = matchedRule ? matchedRule.response : "عذراً، لم تتوفر لدي هذه المعلومة حالياً، لكن يمكنك سؤالي عن ميعاد الحفلة، مكانها، أو عن مطور الموقع، أو التواصل مع الدعم الفني إذا واجهت مشكلة في الحجز.";
+
+    setMessages((prev) => [...prev, { role: 'ai', text: responseText }]);
+    
+    // Play sound
+    const audio = new Audio('/notification.mp3');
+    audio.play().catch(e => console.error("Sound play failed:", e));
+    
+    setIsLoading(false);
   };
 
   return (
