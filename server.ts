@@ -22,12 +22,15 @@ async function startServer() {
     try {
       const { message } = req.body;
       console.log("Received message:", message);
+      console.log("Req body:", JSON.stringify(req.body));
     
       if (!message || typeof message !== 'string') {
-        return res.status(400).json({ error: "Message is required and must be a string", body: req.body });
+        console.error("Invalid input detected");
+        return res.status(400).json({ error: "Message is required and must be a string" });
       }
     
       const msg = message.toLowerCase();
+      console.log("Message lowercased:", msg);
 
       const rules = [
         { pattern: /مطور|مصمم|مين|مبرمج|صاحب|سوى|عمل/i, response: "الموقع تم تطويره بواسطة المبرمج الشاطر والمحترف كيرلس صفوت (Kerolos Sfwat)." },
@@ -41,9 +44,11 @@ async function startServer() {
         { pattern: /مشكلة|مشكله|خطأ|فنية|دعم|مساعدة|عطل/i, response: "يقلقني أنك تواجه مشكلة. لتشخيص الأمر، هل المشكلة في (الكود) أو (حفظ البيانات) أو (التذكرة)؟ بمجرد تحديدك للمشكلة، سأعطيك الخطوات الدقيقة للحل." }
       ];
 
-      // Find the best match
       const matchedRule = rules.find(rule => rule.pattern.test(msg));
+      console.log("Matched rule:", !!matchedRule);
+      
       const responseText = matchedRule ? matchedRule.response : "عذراً، لم تتوفر لدي هذه المعلومة حالياً، لكن يمكنك سؤالي عن ميعاد الحفلة، مكانها، أو عن مطور الموقع، أو التواصل مع الدعم الفني إذا واجهت مشكلة في الحجز.";
+      console.log("Response text:", responseText);
 
       res.json({ text: responseText });
     } catch (error) {

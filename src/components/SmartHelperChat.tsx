@@ -40,7 +40,9 @@ export default function SmartHelperChat() {
       }
 
       if (!response.ok) {
-        throw new Error(data.details || data.error || `Server responded with ${response.status}`);
+        const errorText = await response.text();
+        console.error('Server error response:', errorText);
+        throw new Error(`Server error (${response.status}): ${errorText}`);
       }
       
       setMessages((prev) => [...prev, { role: 'ai', text: data.text || 'عذراً، حدث خطأ ما.' }]);
@@ -49,8 +51,8 @@ export default function SmartHelperChat() {
       const audio = new Audio('/notification.mp3');
       audio.play().catch(e => console.error("Sound play failed:", e));
     } catch (error) {
-      console.error("Chat error:", error);
-      setMessages((prev) => [...prev, { role: 'ai', text: `عذراً، حدث خطأ: ${error instanceof Error ? error.message : String(error)}` }]);
+      console.error("Chat error object:", error);
+      setMessages((prev) => [...prev, { role: 'ai', text: `خطأ تقني: ${error instanceof Error ? error.message : String(error)}` }]);
     } finally {
       setIsLoading(false);
     }
