@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
-import { collection, addDoc, Timestamp, query, where, getDocs, doc, getDocFromServer } from 'firebase/firestore';
+import React, { useState, useEffect } from 'react';
+import { collection, addDoc, Timestamp, query, where, getDocs, doc, getDocFromServer, runTransaction } from 'firebase/firestore';
 import { getDb } from './lib/firebase';
 import { PartyPopper, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -81,39 +81,36 @@ function handleFirestoreError(error: unknown, operationType: OperationType, path
     setErrorMessage(null);
 
     try {
-      const q = query(
-        collection(db, 'bookings'),
-        where('name', '==', bookingFormData.name)
-      );
-      
-      let querySnapshot;
-      try {
-        querySnapshot = await getDocs(q);
-      } catch (error) {
-        handleFirestoreError(error, OperationType.GET, 'bookings');
-      }
+      // Use a transaction for atomic check-and-write
+      await runTransaction(db, async (transaction) => {
+        const q = query(
+          collection(db, 'bookings'),
+          where('name', '==', bookingFormData.name)
+        );
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+          throw new Error('NAME_EXISTS');
+        }
 
-      if (querySnapshot && !querySnapshot.empty) {
-        setErrorMessage('هذا الاسم محجوز بالفعل! يرجى اختيار اسم آخر.');
-        setIsSubmitting(false);
-        return;
-      }
-
-      try {
-        await addDoc(collection(db, 'bookings'), {
+        const newBookingRef = doc(collection(db, 'bookings'));
+        transaction.set(newBookingRef, {
           ...bookingFormData,
           createdAt: Timestamp.now(),
           eventId: 'neon-nights-2026'
         });
-      } catch (error) {
-        handleFirestoreError(error, OperationType.CREATE, 'bookings');
-      }
+      });
       
       setIsModalOpen(false);
       setIsSuccessModalOpen(true);
       setBookingFormData({ name: '', year: 'أولي', phone: '', gender: 'بنين' });
     } catch (error: any) {
-      setErrorMessage('حدث خطأ أثناء الحجز، يرجى المحاولة لاحقاً.');
+      if (error.message === 'NAME_EXISTS') {
+        setErrorMessage('هذا الاسم محجوز بالفعل! يرجى اختيار اسم آخر.');
+      } else {
+        console.error('Booking error:', error);
+        setErrorMessage('حدث خطأ أثناء الحجز، يرجى المحاولة لاحقاً.');
+      }
     } finally {
       setIsSubmitting(false);
     }
