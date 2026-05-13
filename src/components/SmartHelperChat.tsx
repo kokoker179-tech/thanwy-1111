@@ -20,7 +20,7 @@ export default function SmartHelperChat() {
 
     try {
       console.log('Sending message:', input);
-      const response = await fetch(`${window.location.origin}/api/chat`, {
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

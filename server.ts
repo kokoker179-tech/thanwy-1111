@@ -19,13 +19,14 @@ async function startServer() {
   console.log("NODE_ENV:", process.env.NODE_ENV);
 
   app.post("/api/chat", express.json(), async (req, res) => {
+    console.log("-> /api/chat received request");
     try {
       const { message } = req.body;
-      console.log("Received message:", message);
-      console.log("Req body:", JSON.stringify(req.body));
+      console.log("Received message in body:", message);
+      console.log("Req body content:", JSON.stringify(req.body));
     
       if (!message || typeof message !== 'string') {
-        console.error("Invalid input detected");
+        console.error("Invalid input detected in body:", req.body);
         return res.status(400).json({ error: "Message is required and must be a string" });
       }
     
@@ -38,7 +39,7 @@ async function startServer() {
         { pattern: /مكان|فين|موقع|عنوان/i, response: "موقع الحفلة لا يزال قيد التحديد. سنعلن عنه قريباً. هل هناك شيء آخر تود الاستفسار عنه؟" },
         { pattern: /وصف|عن|حفلة|تفاصيل/i, response: "الحفلة ستكون تجمعاً مميزاً. لا يوجد وصف تفصيلي حتى الآن، لكننا نعدك بتجربة رائعة." },
         { pattern: /سلام|هاي|مرحبا|اهلا/i, response: "أهلاً بك في كنيسة الملاك روفائيل! أنا مساعدك الذكي لكل ما يخص الحفلة القادمة. كيف يمكنني مساعدتك؟" },
-        { pattern: /كود|رسالة|تحقق|تفعيل/i, response: "مشكلة كود التحقق غالباً ما تكون بسبب التأخير في الشبكة أو الرقم غير المسجل على واتساب. هل جربت الانتظار لدقيقة وإعادة الطلب؟" },
+        { pattern: /كود|رسالة|تحقق|تفعيل/i, response: "مشكلة كود التحقق غالباً ما تكون بسبب التأخير في الشبكة أو الرقم غير المسجل على واتساب. هل جبت الانتظار لدقيقة وإعادة الطلب؟" },
         { pattern: /طباعة|ورقة|تذكرة|إثبات|تأكيد/i, response: "لمشكلة التذكرة: تأكد من إتمام الحجز بنجاح، حاول تحديث الصفحة. إذا استمرت، أرسل رقم حجزك للدعم الفني واتساب: 01554353231." },
         { pattern: /بيانات|حفظ|تسجيل|خطأ/i, response: "عند وجود خطأ في البيانات، تأكد من ملء الحقول المطلوبة بدقة (مثل تنسيق الهاتف). هل تظهر لك رسالة خطأ محددة؟" },
         { pattern: /مشكلة|مشكله|خطأ|فنية|دعم|مساعدة|عطل/i, response: "يقلقني أنك تواجه مشكلة. لتشخيص الأمر، هل المشكلة في (الكود) أو (حفظ البيانات) أو (التذكرة)؟ بمجرد تحديدك للمشكلة، سأعطيك الخطوات الدقيقة للحل." }
@@ -52,7 +53,7 @@ async function startServer() {
 
       res.json({ text: responseText });
     } catch (error) {
-      console.error("Server error:", error);
+      console.error("Server error in /api/chat:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
