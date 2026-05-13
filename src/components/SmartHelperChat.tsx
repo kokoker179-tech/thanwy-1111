@@ -38,7 +38,7 @@ export default function SmartHelperChat() {
       audio.play().catch(e => console.error("Sound play failed:", e));
     } catch (error) {
       console.error("Chat error:", error);
-      setMessages((prev) => [...prev, { role: 'ai', text: 'حدث خطأ في الاتصال بالذكاء الاصطناعي.' }]);
+      setMessages((prev) => [...prev, { role: 'ai', text: 'عذراً، حدث خطأ في التواصل مع النظام.' }]);
     } finally {
       setIsLoading(false);
     }
