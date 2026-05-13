@@ -42,7 +42,7 @@ async function startServer() {
       res.json({ text: response.text });
     } catch (error) {
       console.error("AI Error:", error);
-      res.status(500).json({ error: "Failed to communicate with AI" });
+      res.status(500).json({ error: "Failed to communicate with AI", details: error instanceof Error ? error.message : String(error) });
     }
   });
 

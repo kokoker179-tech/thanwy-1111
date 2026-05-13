@@ -20,15 +20,7 @@ export default function App() {
   const [bookingFormData, setBookingFormData] = useState({ name: '', year: 'أولي', phone: '', gender: 'بنين' });
 
   useEffect(() => {
-    async function testConnection() {
-      try {
-        await getDocFromServer(doc(getDb(), 'test', 'connection'));
-      } catch (error) {
-        // Suppress fatal logging for the connectivity test itself
-        console.warn("Firestore connectivity test failed (this might be expected in some environments):", error);
-      }
-    }
-    testConnection();
+    // Connection test removed to avoid unnecessary backend calls.
   }, []);
 
   const handleBookTicket = () => {
