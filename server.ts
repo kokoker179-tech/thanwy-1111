@@ -18,7 +18,7 @@ async function startServer() {
 
   console.log("NODE_ENV:", process.env.NODE_ENV);
 
-  app.post("/api/chat", async (req, res) => {
+  app.post("/api/chat", express.json(), async (req, res) => {
     try {
       const { message } = req.body;
       console.log("Received message:", message);
