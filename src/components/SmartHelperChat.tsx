@@ -21,14 +21,26 @@ export default function SmartHelperChat() {
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
         body: JSON.stringify({ message: input }),
       });
       
-      const data = await response.json();
+      console.log('Response status:', response.status);
+      const text = await response.text();
+      console.log('Response text:', text);
+      
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error(`Invalid JSON response: ${text}`);
+      }
 
       if (!response.ok) {
-        throw new Error(data.details || data.error || 'Failed to send message');
+        throw new Error(data.details || data.error || `Server responded with ${response.status}`);
       }
       
       setMessages((prev) => [...prev, { role: 'ai', text: data.text || 'عذراً، حدث خطأ ما.' }]);
@@ -38,7 +50,7 @@ export default function SmartHelperChat() {
       audio.play().catch(e => console.error("Sound play failed:", e));
     } catch (error) {
       console.error("Chat error:", error);
-      setMessages((prev) => [...prev, { role: 'ai', text: 'عذراً، حدث خطأ في التواصل مع النظام.' }]);
+      setMessages((prev) => [...prev, { role: 'ai', text: `عذراً، حدث خطأ: ${error instanceof Error ? error.message : String(error)}` }]);
     } finally {
       setIsLoading(false);
     }
