@@ -13,37 +13,52 @@ async function startServer() {
 
   app.post("/api/chat", async (req, res) => {
     const { message } = req.body;
-  
-    if (!process.env.GEMINI_API_KEY) {
-       res.status(500).json({ error: "Gemini API key is missing" });
-       return;
-    }
-  
-    try {
-      const { GoogleGenAI } = await import("@google/genai");
-      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: `You are a helpful assistant for a graduation ceremony at "كنيسه الملاك روفائيل". 
-          
-          General Information:
-          - Event Description: لم يتم كتابة وصف حتي الآن
-          - Date: لم يحدد بعد
-          - Location: لم يحدد بعد
-          - Time: لم يحدد بعد
-  
-          Instructions:
-          - Please respond naturally and diversify your responses.
-          - Use the General Information provided to answer user questions about the graduation ceremony.
-          - IMPORTANT: If the user asks about the website owner, developer, who programmed the site, or similar questions, answer that the developer is "kerolos sfwat" and mention that he is a very skilled and professional programmer.
-          User said: ${message}`,
-      });
-  
-      res.json({ text: response.text });
-    } catch (error) {
-      console.error("AI Error:", error);
-      res.status(500).json({ error: "Failed to communicate with AI", details: error instanceof Error ? error.message : String(error) });
-    }
+    const msg = message.toLowerCase();
+
+    const rules = [
+      {
+        pattern: /مطور|مصمم|مين|مبرمج|صاحب|سوى|عمل/i,
+        response: "يسعدني اهتمامك! الموقع تم تطويره بواسطة المبرمج الشاطر والمحترف كيرلس صفوت (Kerolos Sfwat)."
+      },
+      {
+        pattern: /ميعاد|وقت|تاريخ|متى|امتى/i,
+        response: "بخصوص الميعاد، ما زال التاريخ والوقت قيد التحديد. تابع الموقع للحصول على التحديثات فور توفرها."
+      },
+      {
+        pattern: /مكان|فين|موقع|عنوان/i,
+        response: "عن مكان الحفلة، لم يتم تحديد الموقع بعد. سنقوم بالإعلان عنه بمجرد تحديده، تابعنا!"
+      },
+      {
+        pattern: /وصف|عن|حفلة|تفاصيل/i,
+        response: "الحفلة ستكون تجمعاً مميزاً. لم يتم كتابة وصف تفصيلي لها حتى الآن، لكننا نعمل على كل الترتيبات لجعلها تجربة رائعة."
+      },
+      {
+        pattern: /سلام|هاي|مرحبا|اهلا/i,
+        response: "أهلاً بك! أنا مساعد ذكي لمساعدتك في معرفة آخر تفاصيل حفلة كنيسة الملاك روفائيل. كيف يمكنني مساعدتك اليوم؟"
+      },
+      {
+        pattern: /كود|رسالة|تحقق|تفعيل/i,
+        response: "إذا لم يصلك كود التحقق/التفعيل، يرجى التأكد من أن رقم الهاتف المكتوب صحيح ومسجل عليه واتساب، أو الانتظار لدقيقة وإعادة المحاولة. هل قمت بالتأكد من الرقم؟"
+      },
+      {
+        pattern: /طباعة|ورقة|تذكرة|إثبات|تأكيد/i,
+        response: "إذا واجهت مشكلة في طباعة أو ظهور التذكرة، يرجى التأكد من إتمام الحجز بنجاح أولاً، أو حاول تحديث الصفحة. هل تظهر لك رسالة خطأ معينة؟"
+      },
+      {
+        pattern: /بيانات|حفظ|تسجيل|خطأ/i,
+        response: "إذا لم تحفظ البيانات، يرجى التأكد من ملء جميع الحقول المطلوبة ومراجعة المدخلات. هل تظهر أي رسالة توضح مكان الخطأ؟"
+      },
+      {
+        pattern: /حجز|مشكلة|مشكله|فنية|دعم|مساعدة/i,
+        response: "أنا هنا للمساعدة! هل يمكنك توضيح ما هي المشكلة التي تواجهك بالتحديد في الحجز؟ (مثلاً: الكود لا يصل، البيانات لا تُحفظ، أو غيرها). إذا لم أستطع مساعدتك، يمكنك دائماً التواصل مع الدعم الفني واتساب على: 01554353231."
+      }
+    ];
+
+    // Find the best match
+    const matchedRule = rules.find(rule => rule.pattern.test(msg));
+    const responseText = matchedRule ? matchedRule.response : "عذراً، لم تتوفر لدي هذه المعلومة حالياً، لكن يمكنك سؤالي عن ميعاد الحفلة، مكانها، أو عن مطور الموقع، أو التواصل مع الدعم الفني إذا واجهت مشكلة في الحجز.";
+
+    res.json({ text: responseText });
   });
 
   // Vite middleware for development

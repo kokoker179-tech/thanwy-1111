@@ -28,7 +28,7 @@ export default function SmartHelperChat() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to send message');
+        throw new Error(data.details || data.error || 'Failed to send message');
       }
       
       setMessages((prev) => [...prev, { role: 'ai', text: data.text || 'عذراً، حدث خطأ ما.' }]);
