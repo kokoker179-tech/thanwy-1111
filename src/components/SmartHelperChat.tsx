@@ -19,6 +19,7 @@ export default function SmartHelperChat() {
     setIsLoading(true);
 
     try {
+      console.log('Sending message:', input);
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -40,9 +41,7 @@ export default function SmartHelperChat() {
       }
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Server error response:', errorText);
-        throw new Error(`Server error (${response.status}): ${errorText}`);
+        throw new Error(`Server error (${response.status}): ${data.error || text}`);
       }
       
       setMessages((prev) => [...prev, { role: 'ai', text: data.text || 'عذراً، حدث خطأ ما.' }]);
