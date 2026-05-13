@@ -1,10 +1,6 @@
 import { useState } from 'react';
 import { MessageCircle, Send, X, Headset } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { GoogleGenAI } from "@google/genai";
-
-// Initialize AI SDK. The API key is injected by the platform.
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
 
 export default function SmartHelperChat() {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,24 +19,19 @@ export default function SmartHelperChat() {
     setIsLoading(true);
 
     try {
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: `You are a helpful assistant for a graduation ceremony at "كنيسه الملاك روفائيل". 
-        
-        General Information:
-        - Event Description: لم يتم كتابة وصف حتي الآن
-        - Date: لم يحدد بعد
-        - Location: لم يحدد بعد
-        - Time: لم يحدد بعد
-
-        Instructions:
-        - Please respond naturally and diversify your responses.
-        - Use the General Information provided to answer user questions about the graduation ceremony.
-        - IMPORTANT: If the user asks about the website owner, developer, who programmed the site, or similar questions, answer that the developer is "kerolos sfwat" and mention that he is a very skilled and professional programmer.
-        User said: ${userMessage.text}`,
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: input }),
       });
       
-      setMessages((prev) => [...prev, { role: 'ai', text: response.text || 'عذراً، حدث خطأ ما.' }]);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send message');
+      }
+      
+      setMessages((prev) => [...prev, { role: 'ai', text: data.text || 'عذراً، حدث خطأ ما.' }]);
       
       // Play sound
       const audio = new Audio('/notification.mp3');
